@@ -1,0 +1,13 @@
+{
+  "include": ["*", "**/*"],
+  "compilerOptions": {
+    "strict": true,
+    "target": "ESNext",
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "preserveWatchOutput": true,
+    "allowJs": true,
+    "noEmit": true,
+    "skipLibCheck": true
+  }
+}

@@ -1,0 +1,14 @@
+node_modules
+.DS_Store
+.vscode
+
+#* package
+tsconfig.json
+jsconfig.json
+README.md
+.elslintrc.json
+
+#* Lock files
+pnpm-lock.yaml
+package-lock.yaml
+yarn.lock

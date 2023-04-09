@@ -1,0 +1,28 @@
+{
+  "name": "leadfisher",
+  "description": "",
+  "version": "0.1.0",
+  "packageManager": "pnpm@7.26.0",
+  "private": true,
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test && tsc",
+    "dev": "node index.js",
+    "prettier:fix": "prettier --write \"**/*.{js,ts,json,html,cjs,md,yaml}\"",
+    "eslint:fix": "eslint --fix \"**/*.{js,ts}\""
+  },
+  "engines": {
+    "node": ">= 19"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.10",
+    "eslint": "^8.36.0",
+    "eslint-config-leadfisher": "^1.2.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.8.7",
+    "typescript": "^5.0.2"
+  }
+}
