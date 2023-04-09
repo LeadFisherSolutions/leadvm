@@ -39,7 +39,7 @@ console.log(ms);
 ## Read script from file
 
 ```js
-const leadvm = require('.');
+const leadvm = require('leadvm');
 (async () => {
   const ms = await leadvm.readScript('./test/examples/simple.js');
   console.log(ms);
