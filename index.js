@@ -74,6 +74,7 @@ class Script {
       let name = module;
       let lib = this.#checkAccess(name);
       if (lib instanceof Object) return lib;
+
       const npm = !name.includes('.');
       if (!npm) {
         name = path.resolve(dirname, relative, addExt(name, 'js'));
