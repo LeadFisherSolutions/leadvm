@@ -1,13 +1,14 @@
 'use strict';
 
+const path = require('node:path');
 const vm = require('node:vm');
 const fs = require('node:fs');
 const fsp = fs.promises;
-const path = require('node:path');
+
 const { CONTEXT_OPTIONS, EMPTY_CONTEXT, COMMON_CONTEXT, MODULE_TYPES, RUN_OPTIONS } = require('./src/config');
 const { useStrict, addExt, wrapSource } = require('./src/utils');
-const DIR = '.' + path.sep;
 
+const DIR = '.' + path.sep;
 const internalRequire = require;
 
 const createContext = (context, preventEscape = false) => {
@@ -25,6 +26,7 @@ class Script {
     this.relative = options.relative || '.';
     this.type = options.type || MODULE_TYPES.DEFAULT;
     this.access = options.access || {};
+
     this.#init(name, src, options);
   }
 
@@ -32,12 +34,14 @@ class Script {
     const strict = useStrict(src);
     const commonjs = this.type === MODULE_TYPES.COMMONJS;
     const code = commonjs ? wrapSource(src) : `{\n${src}\n}`;
-    const lineOffset = !strict ? -1 : -2;
-    const scriptOptions = { filename: name, ...options, lineOffset };
+
+    const scriptOptions = { filename: name, ...options, lineOffset: !strict ? -1 : -2 };
     this.script = new vm.Script(strict + code, scriptOptions);
+
     this.context = options.context || createContext();
     const runOptions = { ...RUN_OPTIONS, ...options };
     const exports = this.script.runInContext(this.context, runOptions);
+
     this.exports = commonjs ? this.#commonExports(exports) : exports;
   };
 
@@ -51,6 +55,7 @@ class Script {
     return module.exports || exports;
   }
 
+  //? Check require access
   #checkAccess(name) {
     const dir = path.join(name);
     for (const key of Object.keys(this.access)) {
@@ -60,6 +65,7 @@ class Script {
     return null;
   }
 
+  //? Require wrapper for access limitation
   #createRequire = () => {
     const { context, type } = this;
     let { dirname, relative, access } = this;
@@ -103,12 +109,27 @@ class Script {
 }
 
 const readScript = async (filePath, options = {}) => {
-  const resource = await fsp.readFile(filePath, 'utf8');
-  if (!resource) throw new SyntaxError(`File ${filePath} is empty`);
+  const src = await fsp.readFile(filePath, 'utf8');
+  if (!src) throw new SyntaxError(`File ${filePath} is empty`);
   const name = options.filename ?? path.basename(filePath, '.js');
-  return new Script(name, resource, options);
+  return new Script(name, src, options);
+};
+
+const readDir = async (dir, options = {}) => {
+  const files = await fsp.readdir(dir, { withFileTypes: true });
+  const scripts = {};
+
+  for (const file of files) {
+    if (file.isFile() && !file.name.endsWith('.js')) continue;
+    const filePath = path.join(dir, file.name);
+    const key = path.basename(file.name, '.js');
+    const loader = file.isFile() ? readScript : readDir;
+    scripts[key] = await loader(filePath, options);
+  }
+
+  return scripts;
 };
 
 const createScript = (name, src, options) => new Script(name, src, options);
 
-module.exports = { Script, readScript, createContext, createScript, COMMON_CONTEXT, MODULE_TYPES };
+module.exports = { Script, readScript, readDir, createContext, createScript, COMMON_CONTEXT, MODULE_TYPES };

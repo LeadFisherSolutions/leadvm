@@ -1,15 +1,13 @@
 const test = require('node:test');
 const path = require('node:path');
-const vm = require('../index');
+const leadvm = require('..');
 const assert = require('node:assert');
 
 const target = name => path.join(__dirname, 'examples', name);
-const examples = path.join(__dirname, 'examples');
 const SCRIPT_FIELDS = ['name', 'dirname', 'relative', 'type', 'access', 'script', 'context', 'exports'];
 
-test('Script constructor', async t => {
-  const script = `({field: 'value'});`;
-  const ms = new vm.Script('Example', script);
+test('[DEFAULT] Script constructor', async t => {
+  const ms = new leadvm.Script('Example', `({field: 'value'});`);
 
   assert.strictEqual(typeof ms.exports, 'object');
   assert.deepStrictEqual(Object.keys(ms), SCRIPT_FIELDS);
@@ -17,9 +15,8 @@ test('Script constructor', async t => {
   assert.strictEqual(ms.exports.field, 'value');
 });
 
-test('Script factory', async t => {
-  const script = `({field: 'value'});`;
-  const ms = vm.createScript('Example', script);
+test('[DEFAULT] Script factory', async t => {
+  const ms = leadvm.createScript('Example', `({field: 'value'});`);
 
   assert.strictEqual(typeof ms.exports, 'object');
   assert.deepStrictEqual(Object.keys(ms), SCRIPT_FIELDS);
@@ -27,9 +24,8 @@ test('Script factory', async t => {
   assert.strictEqual(ms.exports.field, 'value');
 });
 
-test('Object.js', async t => {
-  const path = target('object.js');
-  const ms = await vm.readScript(path);
+test('[DEFAULT] Object.js', async t => {
+  const ms = await leadvm.readScript(target('object.js'));
 
   assert.strictEqual(typeof ms.exports, 'object');
   assert.deepStrictEqual(Object.keys(ms), SCRIPT_FIELDS);
@@ -39,9 +35,8 @@ test('Object.js', async t => {
   assert.strictEqual(ms.exports.sub(2, 3), -1);
 });
 
-test('Arrow.js', async t => {
-  const path = target('arrow.js');
-  const ms = await vm.readScript(path);
+test('[DEFAULT] Arrow.js', async t => {
+  const ms = await leadvm.readScript(target('arrow.js'));
 
   assert.strictEqual(typeof ms.exports, 'function');
   assert.strictEqual(ms.exports.toString(), '(a, b) => a + b');
@@ -49,22 +44,20 @@ test('Arrow.js', async t => {
   assert.strictEqual(ms.exports(-1, 1), 0);
 });
 
-test('Error.empty.js', async t => {
+test('[DEFAULT] Error.empty.js', async t => {
   try {
-    const path = target('error.empty.js');
-    await vm.readScript(path);
+    await leadvm.readScript(target('error.empty.js'));
     assert.fail(new Error('Should throw an error.'));
   } catch (err) {
     assert.strictEqual(err.constructor.name, 'SyntaxError');
   }
 });
 
-test('Complex.js', async t => {
-  const path = target('complex.js');
-  const context = vm.createContext({ setTimeout });
+test('[DEFAULT] Complex.js', async t => {
+  const context = leadvm.createContext({ setTimeout });
   const options = { filename: 'CUSTOM FILE NAME', context };
+  const ms = await leadvm.readScript(target('complex.js'), options);
 
-  const ms = await vm.readScript(path, options);
   assert.strictEqual(ms.constructor.name, 'Script');
   ms.exports.add(2, 3, (err, sum) => {
     assert.strictEqual(err.constructor.name === 'Error', true);
@@ -74,9 +67,8 @@ test('Complex.js', async t => {
   });
 });
 
-test('Function.js', async t => {
-  const path = target('function.js');
-  const ms = await vm.readScript(path);
+test('[DEFAULT] Function.js', async t => {
+  const ms = await leadvm.readScript(target('function.js'));
 
   assert.strictEqual(typeof ms.exports, 'function');
   assert.deepStrictEqual(Object.keys(ms), SCRIPT_FIELDS);
@@ -84,39 +76,35 @@ test('Function.js', async t => {
   assert.strictEqual(ms.exports.bind(null, 3)(4), 12);
 });
 
-test('Async.js', async t => {
-  const path = target('async.js');
-  const ms = await vm.readScript(path);
+test('[DEFAULT] Async.js', async t => {
+  const ms = await leadvm.readScript(target('async.js'));
+  const result = await ms.exports('str', { field: 'value' });
 
   assert.strictEqual(typeof ms.exports, 'function');
   assert.strictEqual(ms.exports.constructor.name, 'AsyncFunction');
-  const result = await ms.exports('str', { field: 'value' });
   assert.deepEqual(result, { name: 'str', data: { field: 'value' } });
   assert.rejects(ms.exports('', { field: 'value' }));
 });
 
-test('Local.js', async t => {
-  const path = target('local.js');
-  const ms = await vm.readScript(path);
-
+test('[DEFAULT] Local.js', async t => {
+  const ms = await leadvm.readScript(target('local.js'));
   const result = await ms.exports('str');
+
   assert.deepEqual(result, { args: ['str'], local: 'hello' });
 });
 
-test('Error.syntax.js', async t => {
+test('[DEFAULT] Error.syntax.js', async t => {
   try {
-    const path = target('error.syntax.js');
-    await vm.readScript(path);
+    await leadvm.readScript(target('error.syntax.js'));
     assert.fail(new Error('Should throw an error.'));
   } catch (err) {
     assert.strictEqual(err.constructor.name, 'SyntaxError');
   }
 });
 
-test('Error.reference.js', async t => {
+test('[DEFAULT] Error.reference.js', async t => {
   try {
-    const path = target('error.reference.js');
-    const script = await vm.readScript(path);
+    const script = await leadvm.readScript(target('error.reference.js'));
     await script.exports();
 
     assert.fail(new Error('Should throw an error.'));
@@ -127,34 +115,30 @@ test('Error.reference.js', async t => {
 
 //? Access for stub module
 
-test('Access internal not permitted', async test => {
+test('[CJS] Access internal not permitted', async test => {
   try {
-    const src = `const fs = require('fs');`;
-    const ms = vm.createScript('Example', src, { type: vm.MODULE_TYPES.COMMONJS });
+    const ms = leadvm.createScript('Example', `const fs = require('fs');`, { type: leadvm.MODULE_TYPES.COMMONJS });
     assert.strictEqual(ms, undefined);
   } catch (err) {
     assert.strictEqual(err.message, `Access denied 'fs'`);
   }
 });
 
-test('Access non-existent not permitted', async test => {
+test('[CJS] Access non-existent not permitted', async test => {
   try {
     const src = `const notExist = require('nothing');`;
-    const ms = vm.createScript('Example', src, { type: vm.MODULE_TYPES.COMMONJS });
+    const ms = leadvm.createScript('Example', src, { type: leadvm.MODULE_TYPES.COMMONJS });
     assert.strictEqual(ms, undefined);
   } catch (err) {
     assert.strictEqual(err.message, `Access denied 'nothing'`);
   }
 });
 
-test('Access non-existent module', async test => {
+test('[CJS] Access non-existent npm module', async test => {
   try {
-    const src = `const notExist = require('leadfisher');`;
-    const ms = vm.createScript('Example', src, {
-      access: {
-        leadfisher: true,
-      },
-      type: vm.MODULE_TYPES.COMMONJS,
+    const ms = leadvm.createScript('Example', `const notExist = require('leadfisher');`, {
+      access: { leadfisher: true },
+      type: leadvm.MODULE_TYPES.COMMONJS,
     });
     assert.strictEqual(ms, undefined);
   } catch (err) {
@@ -162,86 +146,73 @@ test('Access non-existent module', async test => {
   }
 });
 
-test('Access nestsed commonjs', async test => {
+test('[CJS] Access nestsed commonjs', async test => {
   const sandbox = {};
   sandbox.global = sandbox;
   const src = `module.exports = require('./examples/module.js');`;
-  const ms = vm.createScript('Example', src, {
-    context: vm.createContext(sandbox),
+  const ms = leadvm.createScript('Example', src, {
+    context: leadvm.createContext(Object.freeze(sandbox)),
     dirname: __dirname,
-    access: {
-      './examples/module.js': true,
-      './examples/module.nested.js': true,
-    },
-    type: vm.MODULE_TYPES.COMMONJS,
+    access: { './examples/module.js': true, './examples/module.nested.js': true },
+    type: leadvm.MODULE_TYPES.COMMONJS,
   });
   assert.strictEqual(ms.exports.value, 1);
   assert.strictEqual(ms.exports.nested.value, 2);
 });
 
-test('Access folder [path prefix]', async test => {
+test('[CJS] Access folder [path prefix]', async test => {
   const src = `module.exports = require('./examples/module.js');`;
-  const ms = vm.createScript('Example', src, {
+  const ms = leadvm.createScript('Example', src, {
     dirname: __dirname,
-    access: {
-      './examples': true,
-    },
-    type: vm.MODULE_TYPES.COMMONJS,
+    access: { './examples': true },
+    type: leadvm.MODULE_TYPES.COMMONJS,
   });
   assert.strictEqual(ms.exports.value, 1);
   assert.strictEqual(ms.exports.nested.value, 2);
 });
 
-test('Access with readScript', async test => {
-  const path = target('module.js');
-  const ms = await vm.readScript(path, {
-    dirname: examples,
-    access: {
-      './module.nested.js': true,
-    },
-    type: vm.MODULE_TYPES.COMMONJS,
+test('[CJS] Access with readScript', async test => {
+  const ms = await leadvm.readScript(target('module.js'), {
+    dirname: path.join(__dirname, 'examples'),
+    access: { './module.nested.js': true },
+    type: leadvm.MODULE_TYPES.COMMONJS,
   });
   assert.strictEqual(ms.exports.value, 1);
   assert.strictEqual(ms.exports.nested.value, 2);
 });
 
-test('Access nested not permitted', async test => {
+test('[CJS] Access nested not permitted', async test => {
   try {
     const src = `module.exports = require('./examples/module.js');`;
-    const ms = vm.createScript('Example', src, {
+    const ms = leadvm.createScript('Example', src, {
       dirname: __dirname,
-      access: {
-        './examples/module.js': true,
-      },
-      type: vm.MODULE_TYPES.COMMONJS,
+      access: { './examples/module.js': true },
+      type: leadvm.MODULE_TYPES.COMMONJS,
     });
     assert.fail(new Error('Should not be loaded.'));
   } catch (err) {
-    const module2 = './module.nested.js';
-    assert.strictEqual(err.message, `Access denied '${module2}'`);
+    assert.strictEqual(err.message, `Access denied './module.nested.js'`);
   }
 });
 
-test('Access nestsed npm modules', async test => {
+test('[CJS] Access nestsed npm modules', async test => {
   const src = `module.exports = require('node:test');`;
-  const ms = vm.createScript('Example', src, { access: { 'node:test': true }, type: vm.MODULE_TYPES.COMMONJS });
+  const ms = leadvm.createScript('Example', src, { access: { 'node:test': true }, type: leadvm.MODULE_TYPES.COMMONJS });
   assert.strictEqual(typeof ms.exports, 'function');
 });
 
-test('Eval error [commonjs]', async test => {
-  const src = `module.exports = eval('100 * 2');`;
+test('[CJS] Eval error', async test => {
   try {
-    vm.createScript('Example', src, { type: vm.MODULE_TYPES.COMMONJS });
+    leadvm.createScript('Example', `module.exports = eval('100 * 2');`, { type: leadvm.MODULE_TYPES.COMMONJS });
     assert.fail(new Error('Should throw an error.'));
   } catch (error) {
     assert.strictEqual(error.constructor.name, 'EvalError');
   }
 });
 
-test('Eval error [default]', async test => {
-  const src = `eval('100 * 2')`;
+test('[DEFAULT] Eval error ', async test => {
   try {
-    vm.createScript('Example', src);
+    leadvm.createScript('Example', `eval('100 * 2')`);
     assert.fail(new Error('Should throw an error.'));
   } catch (error) {
     assert.strictEqual(error.constructor.name, 'EvalError');
