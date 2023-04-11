@@ -1,4 +1,4 @@
-# Leadfisher script loader, node.js vm wrapper
+# [Node js] Leadfisher script loader with vm wrapper
 
 ## Create script from string
 
