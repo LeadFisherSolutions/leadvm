@@ -1,3 +1,5 @@
+'use strict';
+
 const test = require('node:test');
 const path = require('node:path');
 const leadvm = require('..');
@@ -6,7 +8,7 @@ const assert = require('node:assert');
 const target = name => path.join(__dirname, 'examples', name);
 const SCRIPT_FIELDS = ['name', 'dirname', 'relative', 'type', 'access', 'script', 'context', 'exports'];
 
-test('[DEFAULT]', async t => {
+test('[DEFAULT] Folder loader', async t => {
   const scripts = await leadvm.readDir(target('readDir'));
   const { arrow, simple } = scripts;
 
