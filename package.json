@@ -1,11 +1,25 @@
 {
   "name": "leadvm",
-  "description": "",
-  "version": "0.1.0",
+  "description": "[Node js] Leadfisher script loader with vm wrapper",
+  "homepage": "https://leadfisher.ru",
+  "version": "1.0.0",
+  "license": "MIT",
   "packageManager": "pnpm@7.26.0",
   "private": true,
   "type": "commonjs",
   "main": "index.js",
+  "types": "index.d.ts",
+  "keywords": [
+    "node.js",
+    "javascript",
+    "LeadFisherSolutions",
+    "vm",
+    "sandbox",
+    "context",
+    "script",
+    "container",
+    "isolation"
+  ],
   "scripts": {
     "test": "node --test && tsc",
     "dev": "node index.js",
@@ -14,6 +28,10 @@
   },
   "engines": {
     "node": ">= 19"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LeadFisherSolutions/leadvm.git"
   },
   "devDependencies": {
     "@types/node": "^18.15.10",
