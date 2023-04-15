@@ -1,32 +1,32 @@
-import { Context, Script, ScriptOptions, BaseOptions } from 'node:vm';
+import { Context, Script, ScriptOptions, BaseOptions, RunningCodeOptions } from 'node:vm';
+type MODULE_TYPE = 'cjs' | 'js';
+type TOptions<value> = { [key: string]: value };
 
 export const COMMON_CONTEXT: Context;
-export const MODULE_TYPES: ModuleTypes;
+export const MODULE_TYPES: MODULE_TYPE[];
 
-export function createContext(context?: Context, preventEscape?: boolean): Context;
-
-//* { ${src} \n} / (exports,require,module,__filename,__dirname) => { ${src} \n}
-declare enum ModuleType {
-  DEFAULT = 'default',
-  COMMONJS = 'commonjs',
-}
-
-export interface VMScriptOptions extends ScriptOptions {
-  type?: ModuleType; //* Тип скрипта (cjs / js)
-  dirname?: string; //* Папка скрипта
-  relative?: string; //* Относительный путь
-  context?: Context; //* Контекст с внешним API
-  access?: object; //* Доступ к внешним файлам
+export interface VMScriptOptions {
+  __dirname?: string;
+  __filename?: string;
+  type?: MODULE_TYPE;
+  access?: TOptions<boolean | object>;
+  context?: Context;
+  runOptions?: RunningCodeOptions;
+  scriptOptions?: ScriptOptions;
 }
 
 export class Script {
-  constructor(name: string, src: string, options?: VMScriptOptions);
-  name: string; //* Имя скрипта
-  script: Script; //* Сгенерированный скрипт vm.createScript(src)
-  context: Context; //* Сгенерированный контекст vm.createContext(context)
-  exports: any; //* Результат выполнения скрипта
+  constructor(src: string, options?: VMScriptOptions);
+  __filename: string;
+  __dirname: string;
+  type: MODULE_TYPE;
+  access: TOptions<boolean | object>;
+  script: Script;
+  context: Context;
+  exports: any;
 }
 
-export function createScript(name: string, src: string, options?: VMScriptOptions): Script;
-export function readScript(filePath: string, options?: BaseOptions): Promise<Script>;
-export function readDir(filePath: string, options?: BaseOptions): Promise<Script[]>;
+export function createContext(context?: Context | Object, preventEscape?: boolean): Context;
+export function createScript(src: string, options?: VMScriptOptions): Script;
+export function readScript(filePath: string, options?: VMScriptOptions): Promise<Script>;
+export function readDir(filePath: string, options?: VMScriptOptions): Promise<Script[]>;

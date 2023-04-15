@@ -1,20 +1,29 @@
-const vm = require('node:vm');
+'use strict';
 
-const CONTEXT_OPTIONS = { codeGeneration: { strings: false, wasm: false } }; //? Code generation configuration
+const { createContext } = require('node:vm');
 
-const EMPTY_CONTEXT = vm.createContext(Object.freeze({}), CONTEXT_OPTIONS); //? Without all, global = {}
+const MODULE_TYPES = ['js', 'cjs'];
+const RUN_OPTIONS = { timeout: 1000 };
+const CONTEXT_OPTIONS = { codeGeneration: { strings: false, wasm: false } };
 
-const intervals = { clearImmediate, clearInterval, clearTimeout, setInterval, setImmediate, setTimeout };
-const url = { URL, URLSearchParams };
-const context = Object.freeze({ Buffer, TextDecoder, TextEncoder, console, queueMicrotask, ...url, ...intervals });
-const COMMON_CONTEXT = vm.createContext(context); //? All frequently used integrated API, without global link
-
-const MODULE_TYPES = {
-  DEFAULT: 'default', //? Last action / variable
-  COMMONJS: 'commonjs', //? module.exports
-};
-
-const RUN_OPTIONS = { timeout: 1000 }; //? 1s timeout for script execution
+const EMPTY_CONTEXT = createContext(Object.freeze({}), CONTEXT_OPTIONS);
+const COMMON_CONTEXT = createContext(
+  Object.freeze({
+    clearImmediate,
+    clearInterval,
+    clearTimeout,
+    setInterval,
+    setImmediate,
+    setTimeout,
+    URL,
+    URLSearchParams,
+    Buffer,
+    TextDecoder,
+    TextEncoder,
+    console,
+    queueMicrotask,
+  }),
+);
 
 module.exports = {
   EMPTY_CONTEXT,
