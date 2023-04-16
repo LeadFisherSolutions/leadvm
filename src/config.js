@@ -25,10 +25,16 @@ const COMMON_CONTEXT = createContext(
   }),
 );
 
+const WRAPPERS = {
+  js: src => `{\n${src}\n}`,
+  cjs: src => `(({exports, require, module, __filename, __dirname}) => {\n${src}\n});`,
+};
+
 module.exports = {
   EMPTY_CONTEXT,
   CONTEXT_OPTIONS,
   COMMON_CONTEXT,
   MODULE_TYPES,
   RUN_OPTIONS,
+  WRAPPERS,
 };

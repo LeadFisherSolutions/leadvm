@@ -154,3 +154,9 @@ const leadvm = require('leadvm');
 })();
 // Output: stub-content
 ```
+
+## Experimental
+
+### npm packages under VM
+
+Usage: Options.npmVm = true

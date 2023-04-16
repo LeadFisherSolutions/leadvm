@@ -26,7 +26,6 @@ class Script {
   #init = (src, options) => {
     const { context, type, __filename, runOptions } = options;
     const scriptOptions = { filename: __filename, lineOffset: type === 'cjs' ? -1 : -2, ...options.scriptOptions };
-
     this.script = new vm.Script(wrapSource(src, type), scriptOptions);
 
     if (type === 'js') this.context = createContext(Object.freeze({ ...context, ...this.#default }));
