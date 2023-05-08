@@ -4,7 +4,7 @@
   "homepage": "https://leadfisher.ru",
   "version": "1.0.0",
   "license": "MIT",
-  "packageManager": "pnpm@7.26.0",
+  "packageManager": "npm@9.6.4",
   "private": true,
   "type": "commonjs",
   "main": "index.js",
@@ -27,7 +27,7 @@
     "eslint:fix": "eslint --fix \"**/*.{js,ts}\""
   },
   "engines": {
-    "node": ">= 19"
+    "node": ">= 20"
   },
   "repository": {
     "type": "git",

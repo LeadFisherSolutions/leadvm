@@ -30,11 +30,4 @@ const WRAPPERS = {
   cjs: src => `(({exports, require, module, __filename, __dirname}) => {\n${src}\n});`,
 };
 
-module.exports = {
-  EMPTY_CONTEXT,
-  CONTEXT_OPTIONS,
-  COMMON_CONTEXT,
-  MODULE_TYPES,
-  RUN_OPTIONS,
-  WRAPPERS,
-};
+module.exports = { EMPTY_CONTEXT, CONTEXT_OPTIONS, COMMON_CONTEXT, MODULE_TYPES, RUN_OPTIONS, WRAPPERS };
