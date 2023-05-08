@@ -25,9 +25,10 @@ const readDir = async (dir, options = {}) => {
     if (file.isFile() && !file.name.endsWith('js')) continue;
     const filePath = join(dir, file.name);
     const loader = file.isFile() ? readScript : readDir;
-    scripts[basename(file.name, extname(file.name))] = await loader(filePath, options);
+    scripts[basename(file.name, extname(file.name))] = loader(filePath, options);
   }
 
+  await Promise.all(scripts);
   return scripts;
 };
 
