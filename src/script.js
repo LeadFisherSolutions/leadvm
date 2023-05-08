@@ -11,7 +11,6 @@ class Script {
 
   constructor(src, options = {}) {
     let builded = options;
-    if (options instanceof VMOptions) console.log(options instanceof VMOptions);
     if (!(options instanceof VMOptions)) builded = new VMOptions(options);
     const { __dirname, __filename, type, access } = builded;
 
