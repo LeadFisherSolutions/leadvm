@@ -36,7 +36,8 @@ test('Error.empty.js', async t => {
 
 test('[JS/CJS] Folder loader', async t => {
   const scripts = await leadvm.readDir(target('readDir'));
-  const { arrow, simple } = scripts;
+  const { deep, simple } = scripts;
+  const { arrow } = deep;
 
   assert.strictEqual(typeof scripts, 'object');
   assert.strictEqual(Object.keys(scripts).length, 2);
