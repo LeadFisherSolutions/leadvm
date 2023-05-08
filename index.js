@@ -20,13 +20,20 @@ const readScript = async (filePath, options = {}) => {
 const readDir = async (dir, options = {}) => {
   const files = await readdir(dir, { withFileTypes: true });
   const scripts = {};
+  const promises = [];
+
+  const loader = async (file, filePath, options) => {
+    const reader = file.isFile() ? readScript : readDir;
+    scripts[basename(file.name, extname(file.name))] = await reader(filePath, options);
+  };
 
   for (const file of files) {
     if (file.isFile() && !file.name.endsWith('js')) continue;
     const filePath = join(dir, file.name);
-    const loader = file.isFile() ? readScript : readDir;
-    scripts[basename(file.name, extname(file.name))] = await loader(filePath, options);
+    promises.push(loader(file, filePath, options));
   }
+
+  await Promise.all(promises);
 
   return scripts;
 };
