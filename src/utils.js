@@ -4,9 +4,6 @@ const vm = require('vm');
 const path = require('path');
 const { MODULE_TYPES, CTX_OPTIONS, EMPTY_CTX, WRAPPERS, DEFAULT_OPTS } = require('./config');
 
-class VMError extends Error {}
-const wrapSource = (src, ext = 'js') => `'use strict';\n${WRAPPERS[ext](src.replace(/'use strict';\n?/, ''))}`;
-
 const scriptType = name => {
   const type = name.includes('.') ? name.split('.').at(-1) : MODULE_TYPES[0];
   return MODULE_TYPES.includes(type) ? type : MODULE_TYPES[0];
@@ -42,4 +39,6 @@ const cjs = (closure, options) => {
   return module.exports;
 };
 
+class VMError extends Error {}
+const wrapSource = (src, ext = 'js') => `'use strict';\n${WRAPPERS[ext](src.replace(/'use strict';\n?/, ''))}`;
 module.exports = { wrapSource, VMError, VMOptions, createContext, checkAccess, scriptType, cjs };

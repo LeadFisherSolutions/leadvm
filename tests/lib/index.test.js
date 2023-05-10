@@ -26,7 +26,7 @@ test('Script factory', async t => {
 });
 
 test('[JS/CJS] Folder loader', async t => {
-  const scripts = await leadvm.readDir(target('example'));
+  const scripts = await leadvm.readDir(target('examples'));
   const { deep, simple } = scripts;
   const { arrow } = deep;
 

@@ -1,5 +1,20 @@
 # [Node js] Leadfisher script loader with vm wrapper
 
+## Script options
+
+```ts
+interface VMScriptOptions {
+  __dirname?: string; // File execution directory, default is process.cwd
+  __filename?: string; // The name of the script, default is N404.js
+  type?: MODULE_TYPE; // js => returns last expression, cjs => return all that module.exports includes
+  access?: TOptions<boolean | object>; // Absolute paths to nested modules, or dependencies, require protection
+  context?: Context; // Execution context, default is empty, no Intervals etc.
+  npmIsolation?: boolean; // Use VM isolation for nested dependencies
+  runOptions?: RunningCodeOptions;
+  scriptOptions?: ScriptOptions;
+}
+```
+
 ## Create script from string
 
 Script contains object expression. You can use it for configs, network packets,
@@ -154,9 +169,3 @@ const leadvm = require('leadvm');
 })();
 // Output: stub-content
 ```
-
-## Experimental
-
-### npm packages under VM
-
-Usage: Options.npmVm = true

@@ -5,7 +5,7 @@ const assert = require('node:assert');
 const path = require('node:path');
 const leadvm = require('../..');
 
-const target = name => path.join(__dirname, name);
+const target = name => path.join(__dirname, 'examples', name);
 
 test('Access for node internal module', async t => {
   const sandbox = {};
@@ -65,10 +65,10 @@ test('[CJS] Access nestsed commonjs', async test => {
   const src = `module.exports = require('./module.cjs');`;
   const ms = leadvm.createScript(src, {
     context: leadvm.createContext(Object.freeze(sandbox)),
-    __dirname,
+    __dirname: path.join(__dirname, 'examples'),
     access: {
-      [path.join(__dirname, 'module.cjs')]: true,
-      [path.join(__dirname, 'module.nested.js')]: true,
+      [path.join(__dirname, 'examples', 'module.cjs')]: true,
+      [path.join(__dirname, 'examples', 'module.nested.js')]: true,
     },
     type: 'cjs',
   });
@@ -79,7 +79,7 @@ test('[CJS] Access nestsed commonjs', async test => {
 test('[CJS] Access folder [path prefix]', async test => {
   const src = `module.exports = require('./module.cjs');`;
   const ms = leadvm.createScript(src, {
-    __dirname,
+    __dirname: path.join(__dirname, 'examples'),
     access: { [path.join(__dirname)]: true },
     type: 'cjs',
   });
@@ -89,8 +89,8 @@ test('[CJS] Access folder [path prefix]', async test => {
 
 test('[CJS] Access with readScript', async test => {
   const ms = await leadvm.readScript(target('module.cjs'), {
-    __dirname,
-    access: { [path.join(__dirname, 'module.nested.js')]: true },
+    __dirname: path.join(__dirname, 'examples'),
+    access: { [path.join(__dirname, 'examples', 'module.nested.js')]: true },
     type: 'cjs',
   });
   assert.strictEqual(ms.exports.value, 1);
@@ -101,8 +101,8 @@ test('[CJS] Access nested not permitted', async test => {
   try {
     const src = `module.exports = require('./module.cjs');`;
     const ms = leadvm.createScript(src, {
-      __dirname,
-      access: { [path.join(__dirname, './module.cjs')]: true },
+      __dirname: path.join(__dirname, 'examples'),
+      access: { [path.join(__dirname, 'examples', './module.cjs')]: true },
       type: 'cjs',
     });
     assert.fail(new Error('Should not be loaded.'));

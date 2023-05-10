@@ -13,6 +13,7 @@ export interface VMScriptOptions {
   context?: Context;
   runOptions?: RunningCodeOptions;
   scriptOptions?: ScriptOptions;
+  npmIsolation?: boolean;
 }
 
 export class Script {

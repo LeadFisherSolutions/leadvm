@@ -6,7 +6,7 @@ const { VMError, checkAccess, scriptType } = require('./utils');
 const internalRequire = require;
 
 const createRequire = (options, Script) => {
-  const { __dirname, npmVm, access } = options;
+  const { __dirname, npmIsolation, access } = options;
   return module => {
     const npm = !module.includes('.');
     const name = !npm ? resolve(__dirname, module) : module;
@@ -17,7 +17,7 @@ const createRequire = (options, Script) => {
     try {
       const absolute = internalRequire.resolve(name);
       if (npm && absolute === name) return internalRequire(name); //? Integrated nodejs API
-      if (npm && !npmVm) return internalRequire(absolute); //?  VM uncover Npm packages
+      if (npm && !npmIsolation) return internalRequire(absolute); //?  VM uncover Npm packages
 
       const filename = basename(absolute);
       return new Script(readFileSync(absolute, 'utf8'), {

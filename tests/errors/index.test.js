@@ -5,7 +5,7 @@ const assert = require('node:assert');
 const path = require('node:path');
 const leadvm = require('../..');
 
-const target = name => path.join(__dirname, name);
+const target = name => path.join(__dirname, 'examples', name);
 
 test('[CJS] Eval error ', async test => {
   try {

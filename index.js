@@ -8,34 +8,29 @@ const Script = require('./src/script');
 const { COMMON_CTX } = require('./src/config');
 const { createContext, VMOptions } = require('./src/utils');
 
-const createScript = (src, options) => new Script(src, options);
-
 const readScript = async (filePath, options = {}) => {
   const src = await readFile(filePath, 'utf8');
   if (!src) throw new SyntaxError(`File ${filePath} is empty`);
-  const buildedOptions = new VMOptions(options, { __filename: basename(filePath), __dirname: dirname(filePath) });
-  return new Script(src, buildedOptions);
+  return new Script(src, new VMOptions(options, { __filename: basename(filePath), __dirname: dirname(filePath) }));
 };
 
 const readDir = async (dir, options = {}) => {
   const files = await readdir(dir, { withFileTypes: true });
   const scripts = {};
-  const promises = [];
 
   const loader = async (file, filePath, options) => {
     const reader = file.isFile() ? readScript : readDir;
     scripts[basename(file.name, extname(file.name))] = await reader(filePath, options);
   };
 
-  for (const file of files) {
-    if (file.isFile() && !file.name.endsWith('js')) continue;
-    const filePath = join(dir, file.name);
-    promises.push(loader(file, filePath, options));
-  }
-
-  await Promise.all(promises);
+  // prettier-ignore
+  await Promise.all(files.reduce((acc, file) => {
+    if (file.isFile() && !file.name.endsWith('js')) return acc;
+    return acc.push(loader(file, join(dir, file.name), options)), acc;
+  }, []));
 
   return scripts;
 };
 
+const createScript = (src, options) => new Script(src, options);
 module.exports = { Script, readScript, readDir, createContext, createScript, COMMON_CTX };
