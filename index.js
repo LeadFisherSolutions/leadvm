@@ -5,7 +5,7 @@ const { promises } = require('node:fs');
 const { readFile, readdir } = promises;
 
 const Script = require('./src/script');
-const { COMMON_CTX } = require('./src/config');
+const { COMMON_CTX, MODULE_TYPES } = require('./src/config');
 const { createContext, VMOptions } = require('./src/utils');
 
 const readScript = async (filePath, options = {}) => {
@@ -20,7 +20,8 @@ const readDir = async (dir, options = {}) => {
 
   const loader = async (file, filePath, options) => {
     const reader = file.isFile() ? readScript : readDir;
-    scripts[basename(file.name, extname(file.name))] = await reader(filePath, options);
+    const ext = extname(file.name);
+    scripts[basename(file.name, MODULE_TYPES.includes(ext) ? ext : '')] = await reader(filePath, options);
   };
 
   // prettier-ignore
