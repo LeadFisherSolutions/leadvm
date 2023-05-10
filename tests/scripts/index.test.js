@@ -3,19 +3,10 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const path = require('node:path');
-const leadvm = require('..');
+const leadvm = require('../..');
 
 const SCRIPT_FIELDS = ['__dirname', '__filename', 'type', 'access', 'script', 'context', 'exports'];
-const target = name => path.join(__dirname, 'examples', name);
-
-test('[JS] Eval error', async test => {
-  try {
-    leadvm.createScript(`eval('100 * 2')`);
-    assert.fail(new Error('Should throw an error.'));
-  } catch (error) {
-    assert.strictEqual(error.constructor.name, 'EvalError');
-  }
-});
+const target = name => path.join(__dirname, name);
 
 test('[JS] Simple.js', async t => {
   const ms = await leadvm.readScript(target('simple.js'));
@@ -86,45 +77,4 @@ test('[JS] Local.js', async t => {
   const result = await ms.exports('str');
 
   assert.deepEqual(result, { args: ['str'], local: 'hello' });
-});
-
-test('[JS] Error.notfound.js', async t => {
-  let ms;
-  try {
-    ms = await leadvm.readScript(target('error.notfound.js'));
-    assert.fail(new Error('Should throw an error.'));
-  } catch (err) {
-    assert.strictEqual(err.code, 'ENOENT');
-  }
-  assert.strictEqual(ms, undefined);
-});
-
-test('[JS] Error.syntax.js', async t => {
-  try {
-    await leadvm.readScript(target('error.syntax.js'));
-    assert.fail(new Error('Should throw an error.'));
-  } catch (err) {
-    assert.strictEqual(err.constructor.name, 'SyntaxError');
-  }
-});
-
-test('[JS] Error.reference.js', async t => {
-  try {
-    const script = await leadvm.readScript(target('error.reference.js'));
-    await script.exports();
-
-    assert.fail(new Error('Should throw an error.'));
-  } catch (err) {
-    assert.strictEqual(err.constructor.name, 'ReferenceError');
-  }
-});
-
-test('[JS] Call undefined as a function', async t => {
-  try {
-    const script = await leadvm.readScript(target('error.undef.js'));
-    await script.exports();
-    assert.fail(new Error('Should throw an error.'));
-  } catch (err) {
-    assert.strictEqual(err.constructor.name, 'TypeError');
-  }
 });

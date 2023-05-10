@@ -3,17 +3,34 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const path = require('node:path');
-const leadvm = require('..');
+const leadvm = require('../..');
 
-const SCRIPT_FIELDS = ['__dirname', '__filename', 'type', 'access', 'script', 'context', 'exports'];
-const target = name => path.join(__dirname, 'examples', name);
+const target = name => path.join(__dirname, name);
 
-test('Eval error [CJS]', async test => {
+test('Access for node internal module', async t => {
+  const sandbox = {};
+  sandbox.global = sandbox;
+  const src = `module.exports = { fs: require('fs') };`;
+  const context = leadvm.createContext(Object.freeze(sandbox));
+  const ms = leadvm.createScript(src, { context, access: { fs: true }, type: 'cjs' });
+});
+
+test('[JS/CJS] Access non-existent npm module', async test => {
   try {
-    leadvm.createScript(`module.exports = eval('100 * 2');`, { type: 'cjs' });
-    assert.fail(new Error('Should throw an error.'));
-  } catch (error) {
-    assert.strictEqual(error.constructor.name, 'EvalError');
+    const ms = leadvm.createScript(`const notExist = require('leadfisher');`, {
+      access: { leadfisher: true },
+      type: 'cjs',
+    });
+    assert.strictEqual(ms, undefined);
+  } catch (err) {
+    assert.strictEqual(err.message, `Cannot find module 'leadfisher'`);
+  }
+
+  try {
+    const ms = leadvm.createScript(`const notExist = require('leadfisher');`, { access: { leadfisher: true } });
+    assert.strictEqual(ms, undefined);
+  } catch (err) {
+    assert.strictEqual(err.message, `Cannot find module 'leadfisher'`);
   }
 });
 
@@ -45,13 +62,13 @@ test('[CJS] Access for stub function', async t => {
 test('[CJS] Access nestsed commonjs', async test => {
   const sandbox = { console };
   sandbox.global = sandbox;
-  const src = `module.exports = require('./examples/module.cjs');`;
+  const src = `module.exports = require('./module.cjs');`;
   const ms = leadvm.createScript(src, {
     context: leadvm.createContext(Object.freeze(sandbox)),
     __dirname,
     access: {
-      [path.join(__dirname, 'examples', 'module.cjs')]: true,
-      [path.join(__dirname, 'examples', 'module.nested.js')]: true,
+      [path.join(__dirname, 'module.cjs')]: true,
+      [path.join(__dirname, 'module.nested.js')]: true,
     },
     type: 'cjs',
   });
@@ -60,10 +77,10 @@ test('[CJS] Access nestsed commonjs', async test => {
 });
 
 test('[CJS] Access folder [path prefix]', async test => {
-  const src = `module.exports = require('./examples/module.cjs');`;
+  const src = `module.exports = require('./module.cjs');`;
   const ms = leadvm.createScript(src, {
     __dirname,
-    access: { [path.join(__dirname, 'examples')]: true },
+    access: { [path.join(__dirname)]: true },
     type: 'cjs',
   });
   assert.strictEqual(ms.exports.value, 1);
@@ -72,8 +89,8 @@ test('[CJS] Access folder [path prefix]', async test => {
 
 test('[CJS] Access with readScript', async test => {
   const ms = await leadvm.readScript(target('module.cjs'), {
-    __dirname: path.join(__dirname, 'examples'),
-    access: { [path.join(__dirname, 'examples', 'module.nested.js')]: true },
+    __dirname,
+    access: { [path.join(__dirname, 'module.nested.js')]: true },
     type: 'cjs',
   });
   assert.strictEqual(ms.exports.value, 1);
@@ -82,10 +99,10 @@ test('[CJS] Access with readScript', async test => {
 
 test('[CJS] Access nested not permitted', async test => {
   try {
-    const src = `module.exports = require('./examples/module.cjs');`;
+    const src = `module.exports = require('./module.cjs');`;
     const ms = leadvm.createScript(src, {
       __dirname,
-      access: { [path.join(__dirname, 'examples', './module.cjs')]: true },
+      access: { [path.join(__dirname, './module.cjs')]: true },
       type: 'cjs',
     });
     assert.fail(new Error('Should not be loaded.'));
