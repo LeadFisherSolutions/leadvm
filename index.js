@@ -5,7 +5,7 @@ const { promises } = require('node:fs');
 const { readFile, readdir } = promises;
 
 const Script = require('./src/script');
-const { COMMON_CONTEXT } = require('./src/config');
+const { COMMON_CTX } = require('./src/config');
 const { createContext, VMOptions } = require('./src/utils');
 
 const createScript = (src, options) => new Script(src, options);
@@ -38,4 +38,4 @@ const readDir = async (dir, options = {}) => {
   return scripts;
 };
 
-module.exports = { Script, readScript, readDir, createContext, createScript, COMMON_CONTEXT };
+module.exports = { Script, readScript, readDir, createContext, createScript, COMMON_CTX };

@@ -2,7 +2,7 @@
 
 const vm = require('vm');
 const path = require('path');
-const { MODULE_TYPES, CONTEXT_OPTIONS, EMPTY_CONTEXT, WRAPPERS } = require('./config');
+const { MODULE_TYPES, CTX_OPTIONS, EMPTY_CTX, WRAPPERS, DEFAULT_OPTS } = require('./config');
 
 class VMError extends Error {}
 const wrapSource = (src, ext = 'js') => `'use strict';\n${WRAPPERS[ext](src.replace(/'use strict';\n?/, ''))}`;
@@ -12,36 +12,34 @@ const scriptType = name => {
   return MODULE_TYPES.includes(type) ? type : MODULE_TYPES[0];
 };
 
-function VMOptions(options, names = {}) {
+function VMOptions(options, names) {
+  Object.assign(this, DEFAULT_OPTS);
   Object.entries(options).forEach(([key, value]) => (this[key] = value));
-  this.__dirname = options.__dirname ?? names.__dirname ?? process.cwd();
-  this.__filename = options.__filename ?? names.__filename ?? 'LeadFisher.js';
-  this.scriptOptions = options.scriptOptions || {};
-  this.access = options.access ?? {};
-  this.runOptions = options.runOptions || {};
+  this.__dirname = options.__dirname ?? names?.__dirname ?? this.__dirname;
+  this.__filename = options.__filename ?? names?.__filename ?? this.__filename;
   if (!this.type) this.type = scriptType(this.__filename);
 }
 
-const checkAccess = (module, options) => {
+const checkAccess = (module, access) => {
   const dir = path.join(module);
-  for (const key of Object.keys(options.access)) {
+  for (const key of Object.keys(access)) {
     if (!dir.startsWith(key)) continue;
-    return Reflect.get(options.access, key);
+    return Reflect.get(access, key);
   }
   return null;
 };
 
 const createContext = (context, preventEscape = false) => {
-  if (!context) return EMPTY_CONTEXT;
+  if (!context) return EMPTY_CTX;
   const options = preventEscape ? { microtaskMode: 'afterEvaluate' } : {};
-  return vm.createContext(context, { ...CONTEXT_OPTIONS, ...options });
+  return vm.createContext(context, { ...CTX_OPTIONS, ...options });
 };
 
-module.exports = {
-  wrapSource,
-  VMError,
-  VMOptions,
-  createContext,
-  checkAccess,
-  scriptType,
+const cjs = (closure, options) => {
+  const exports = {};
+  const module = { exports };
+  closure({ exports, module, ...options });
+  return module.exports;
 };
+
+module.exports = { wrapSource, VMError, VMOptions, createContext, checkAccess, scriptType, cjs };

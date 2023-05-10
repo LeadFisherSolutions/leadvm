@@ -3,11 +3,11 @@
 const { createContext } = require('node:vm');
 
 const MODULE_TYPES = ['js', 'cjs'];
-const RUN_OPTIONS = { timeout: 1000 };
-const CONTEXT_OPTIONS = { codeGeneration: { strings: false, wasm: false } };
+const RUN_OPTS = { timeout: 1000 };
+const CTX_OPTIONS = { codeGeneration: { strings: false, wasm: false } };
 
-const EMPTY_CONTEXT = createContext(Object.freeze({}), CONTEXT_OPTIONS);
-const COMMON_CONTEXT = createContext(
+const EMPTY_CTX = createContext(Object.freeze({}), CTX_OPTIONS);
+const COMMON_CTX = createContext(
   Object.freeze({
     clearImmediate,
     clearInterval,
@@ -25,9 +25,11 @@ const COMMON_CONTEXT = createContext(
   }),
 );
 
+const DEFAULT_OPTS = { scriptOptions: {}, access: {}, runOptions: {}, __dirname: process.cwd(), __filename: 'N404.js' };
+
 const WRAPPERS = {
   js: src => `{\n${src}\n}`,
   cjs: src => `(({exports, require, module, __filename, __dirname}) => {\n${src}\n});`,
 };
 
-module.exports = { EMPTY_CONTEXT, CONTEXT_OPTIONS, COMMON_CONTEXT, MODULE_TYPES, RUN_OPTIONS, WRAPPERS };
+module.exports = { EMPTY_CTX, CTX_OPTIONS, COMMON_CTX, MODULE_TYPES, RUN_OPTS, WRAPPERS, DEFAULT_OPTS };

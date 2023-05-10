@@ -3,44 +3,34 @@
 const vm = require('node:vm');
 
 const createRequire = require('./require');
-const { RUN_OPTIONS } = require('./config');
-const { wrapSource, VMOptions, createContext } = require('./utils');
+const { RUN_OPTS } = require('./config');
+const { wrapSource, VMOptions, createContext, cjs } = require('./utils');
 
 class Script {
-  #default;
-
   constructor(src, options = {}) {
-    let builded = options;
-    if (!(options instanceof VMOptions)) builded = new VMOptions(options);
+    const builded = options instanceof VMOptions ? options : new VMOptions(options);
     const { __dirname, __filename, type, access } = builded;
 
     this.__dirname = __dirname;
     this.__filename = __filename;
     this.type = type;
     this.access = access;
-    this.#default = { require: createRequire(builded, Script), __filename, __dirname };
 
-    this.#init(src, builded);
+    this.#run(src, builded);
   }
 
-  #init = (src, options) => {
-    const { context, type, __filename, runOptions } = options;
-    const scriptOptions = { filename: __filename, lineOffset: type === 'cjs' ? -1 : -2, ...options.scriptOptions };
-    this.script = new vm.Script(wrapSource(src, type), scriptOptions);
+  #run = (src, options) => {
+    const { __filename, __dirname, type } = this;
+    const defaultCTX = { require: createRequire(options, Script), __filename, __dirname };
+    const lineOffset = type === 'cjs' ? -1 : -2;
+    this.script = new vm.Script(wrapSource(src, type), { filename: __filename, lineOffset, ...options.scriptOptions });
 
-    if (type === 'js') this.context = createContext(Object.freeze({ ...context, ...this.#default }));
-    else this.context = context ?? createContext();
+    if (type === 'js') this.context = createContext(Object.freeze({ ...defaultCTX, ...options.context }));
+    else this.context = options.context ?? createContext();
 
-    const exports = this.script.runInContext(this.context, { ...RUN_OPTIONS, ...runOptions });
-    this.exports = type === 'cjs' ? this.#cjs(exports) : exports;
+    const exports = this.script.runInContext(this.context, { ...RUN_OPTS, ...options.runOptions });
+    this.exports = type === 'cjs' ? cjs(exports, defaultCTX) : exports;
   };
-
-  #cjs(closure) {
-    const exports = {};
-    const module = { exports };
-    closure({ exports, module, ...this.#default });
-    return module.exports;
-  }
 }
 
 module.exports = Script;

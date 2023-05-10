@@ -68,7 +68,7 @@ test('Create Default Context', async t => {
 });
 
 test('Create Common Context', async t => {
-  const context = leadvm.createContext(leadvm.COMMON_CONTEXT);
+  const context = leadvm.createContext(leadvm.COMMON_CTX);
   assert.strictEqual(typeof context, 'object');
   assert.strictEqual(context.console, console);
   assert.strictEqual(context.global, undefined);

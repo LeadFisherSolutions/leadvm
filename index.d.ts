@@ -2,7 +2,7 @@ import { Context, Script, ScriptOptions, BaseOptions, RunningCodeOptions } from 
 type MODULE_TYPE = 'cjs' | 'js';
 type TOptions<value> = { [key: string]: value };
 
-export const COMMON_CONTEXT: Context;
+export const COMMON_CTX: Context;
 export const MODULE_TYPES: MODULE_TYPE[];
 
 export interface VMScriptOptions {
