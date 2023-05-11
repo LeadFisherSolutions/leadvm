@@ -6,7 +6,6 @@
   "version": "1.0.0",
   "license": "MIT",
   "packageManager": "npm@9.6.4",
-  "private": true,
   "type": "commonjs",
   "main": "index.js",
   "types": "index.d.ts",
