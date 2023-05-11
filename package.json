@@ -1,6 +1,7 @@
 {
   "name": "leadvm",
   "description": "[Node js] Leadfisher script loader with vm wrapper",
+  "author": "Alexander Ivanov <sashapop101@gmail.com>",
   "homepage": "https://leadfisher.ru",
   "version": "1.0.0",
   "license": "MIT",
