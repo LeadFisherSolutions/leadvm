@@ -1,7 +1,7 @@
 'use strict';
 
-const vm = require('vm');
-const path = require('path');
+const vm = require('node:vm');
+const path = require('node:path');
 const { MODULE_TYPES, CTX_OPTIONS, EMPTY_CTX, WRAPPERS, DEFAULT_OPTS } = require('./config');
 
 const scriptType = name => {
