@@ -14,7 +14,7 @@ const readScript = async (filePath, options = {}) => {
   return new Script(src, new VMOptions(options, { __filename: basename(filePath), __dirname: dirname(filePath) }));
 };
 
-const readDir = async (dir, options = {}) => {
+const readDir = async (dir, options = {}, deep = true) => {
   const files = await readdir(dir, { withFileTypes: true });
   const scripts = {};
 
@@ -26,7 +26,7 @@ const readDir = async (dir, options = {}) => {
 
   // prettier-ignore
   await Promise.all(files.reduce((acc, file) => {
-    if (file.isFile() && !file.name.endsWith('js')) return acc;
+    if ((file.isFile() && !file.name.endsWith('js')) || (file.isDirectory() && !deep)) return acc;
     return acc.push(loader(file, join(dir, file.name), options)), acc;
   }, []));
 

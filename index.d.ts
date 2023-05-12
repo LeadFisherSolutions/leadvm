@@ -30,4 +30,4 @@ export class Script {
 export function createContext(context?: Context | Object, preventEscape?: boolean): Context;
 export function createScript(src: string, options?: VMScriptOptions): Script;
 export function readScript(filePath: string, options?: VMScriptOptions): Promise<Script>;
-export function readDir(filePath: string, options?: VMScriptOptions): Promise<Script[]>;
+export function readDir(filePath: string, options?: VMScriptOptions, deep?: boolean): Promise<Script[]>;
