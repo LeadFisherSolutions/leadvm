@@ -12,13 +12,16 @@
   "keywords": [
     "node.js",
     "javascript",
+    "v8",
+    "script-loader",
     "LeadFisherSolutions",
     "vm",
     "sandbox",
     "context",
     "script",
     "container",
-    "isolation"
+    "isolation",
+    "zero-dependencies"
   ],
   "scripts": {
     "test": "node --test && tsc",
