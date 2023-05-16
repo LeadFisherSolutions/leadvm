@@ -206,3 +206,10 @@ interface VMScriptOptions {
   scriptOptions?: ScriptOptions;
 }
 ```
+
+<h2 align="center">Copyright & contributors</h2>
+
+<p align="center">
+Copyright © 2023 Leadfisher contributors. workspace-example is MIT licensed.<br/>
+Workspace-example is starter-kit for all leadfisher repositories.
+</p>
