@@ -211,6 +211,6 @@ interface VMScriptOptions {
 
 <p align="center">
 Copyright © 2023 <a href="https://github.com/LeadFisherSolutions/leadvm/graphs/contributors">Leadfisher contributors</a>.
-Leadwatch is <a href="./LICENSE">MIT licensed license</a>.<br/>
-Leadwatch is one of <a href="https://github.com/LeadFisherSolutions">leadfisher solutions</a>.
+Leadvm is <a href="./LICENSE">MIT licensed license</a>.<br/>
+Leadvm is one of <a href="https://github.com/LeadFisherSolutions">leadfisher solutions</a>.
 </p>
