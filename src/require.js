@@ -19,13 +19,9 @@ const createRequire = (options, Script) => {
       if (npm && absolute === name) return internalRequire(name); //? Integrated nodejs API
       if (npm && !npmIsolation) return internalRequire(absolute); //?  VM uncover Npm packages
 
-      const filename = basename(absolute);
-      return new Script(readFileSync(absolute, 'utf8'), {
-        ...options,
-        __filename: filename,
-        __dirname: dirname(absolute),
-        type: scriptType(filename),
-      }).exports;
+      const [__filename, __dirname] = [basename(absolute), dirname(absolute)];
+      const type = scriptType(__filename);
+      return new Script(readFileSync(absolute, 'utf8'), { ...options, __filename, __dirname, type }).exports;
     } catch (err) {
       if (err instanceof VMError) throw err;
       throw new VMError(`Cannot find module '${module}'`);

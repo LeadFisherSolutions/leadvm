@@ -1,30 +1,12 @@
-<h1 align="center"> [Node js] Leadfisher script loader with vm wrapper</h1>
+<h1 align="center"> Script isolation and loader</h1>
+
+<h2 align="center">Installation</h2>
+
+```bash
+npm i leadvm --save
+```
 
 <h2 align="center">Usage</h2>
-
-```ts
-class Script {
-  constructor(src: string, options?: VMScriptOptions);
-  __filename: string; // script / file name
-  __dirname: string; // relevant to script directory
-  type: MODULE_TYPE; // js => returns last expression, cjs => return all that module.exports includes
-  access: TOptions<boolean | object>; // Absolute paths to nested modules, or dependencies, require
-  script: Script; // vm.createScript
-  context: Context; // vm.createContext
-  exports: any; // return value of runtime
-}
-
-interface VMScriptOptions {
-  __dirname?: string; // File execution directory, default is process.cwd
-  __filename?: string; // The name of the script, default is N404.js
-  type?: MODULE_TYPE; // js => returns last expression, cjs => return all that module.exports includes
-  access?: TOptions<boolean | object>; // Absolute paths to nested modules, or dependencies, require protection
-  context?: Context; // Execution context, default is empty, no Intervals etc.
-  npmIsolation?: boolean; // Use VM isolation for nested dependencies
-  runOptions?: RunningCodeOptions;
-  scriptOptions?: ScriptOptions;
-}
-```
 
 <h2 align="center">Create script from string</h2>
 
@@ -197,4 +179,30 @@ const leadvm = require('leadvm');
   console.log(res);
 })();
 // Output: stub-content
+```
+
+<h2 align="center">Types</h2>
+
+```ts
+class Script {
+  constructor(src: string, options?: VMScriptOptions);
+  __filename: string; // script / file name
+  __dirname: string; // relevant to script directory
+  type: MODULE_TYPE; // js => returns last expression, cjs => return all that module.exports includes
+  access: TOptions<boolean | object>; // Absolute paths to nested modules, or dependencies, require
+  script: Script; // vm.createScript
+  context: Context; // vm.createContext
+  exports: any; // return value of runtime
+}
+
+interface VMScriptOptions {
+  __dirname?: string; // File execution directory, default is process.cwd
+  __filename?: string; // The name of the script, default is N404.js
+  type?: MODULE_TYPE; // js => returns last expression, cjs => return all that module.exports includes
+  access?: TOptions<boolean | object>; // Absolute paths to nested modules, or dependencies, require protection
+  context?: Context; // Execution context, default is empty, no Intervals etc.
+  npmIsolation?: boolean; // Use VM isolation for nested dependencies
+  runOptions?: RunningCodeOptions;
+  scriptOptions?: ScriptOptions;
+}
 ```

@@ -21,12 +21,12 @@ const readDir = async (dir, options = {}, deep = true) => {
   const loader = async (file, filePath, options) => {
     const reader = file.isFile() ? readScript : readDir;
     const ext = extname(file.name);
-    scripts[basename(file.name, MODULE_TYPES.includes(ext) ? ext : '')] = await reader(filePath, options);
+    scripts[basename(file.name, MODULE_TYPES.includes(ext.slice(1)) ? ext : '')] = await reader(filePath, options);
   };
 
   // prettier-ignore
   await Promise.all(files.reduce((acc, file) => {
-    if ((file.isFile() && !file.name.endsWith('js')) || (file.isDirectory() && !deep)) return acc;
+    if (file.isDirectory() && !deep) return acc;
     return acc.push(loader(file, join(dir, file.name), options)), acc;
   }, []));
 
