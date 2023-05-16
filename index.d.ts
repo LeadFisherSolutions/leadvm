@@ -5,7 +5,7 @@ type TOptions<value> = { [key: string]: value };
 export const COMMON_CTX: Context;
 export const MODULE_TYPES: MODULE_TYPE[];
 
-export interface VMScriptOptions {
+export interface VMScriptOptions extends BaseOptions {
   __dirname?: string;
   __filename?: string;
   type?: MODULE_TYPE;

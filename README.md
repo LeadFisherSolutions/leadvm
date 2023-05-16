@@ -8,16 +8,13 @@ npm i leadvm --save
 
 <h2 align="center">Usage</h2>
 
-<h2 align="center">Create script from string</h2>
-
-<p align="center">
-Script contains object expression. You can use it for configs, network packets,
-serialization format, etc.
-</p>
+- **Create script from string**
+  You can use it for configs, network packets, serialization format, etc. Function expression can be used as api endpoint, domain logic, etc. But you also can use any type of javascript expression inside the script
 
 ```js
 const leadvm = require('leadvm');
 const ms = leadvm.createScript(`({ field: 'value' });`, {}, 'Example');
+// const ms = leadvm.createScript(`(a, b) => a + b;`);
 console.log(ms);
 // Output:
 //   Script {
@@ -31,28 +28,8 @@ console.log(ms);
 //   }
 ```
 
-<p align="center">
-Script contains function expression. You can use it for api endpoints, domain
-logic stored in files or database, etc.
-</p>
-
-```js
-const leadvm = require('leadvm');
-const ms = leadvm.createScript(`(a, b) => a + b;`);
-console.log(ms);
-// Output:
-//   Script {
-//     script: Script {},
-//     context: {},
-//     access: {},
-//     type: 'js',
-//     __dirname: '/home/user/app',
-//     __name: 'LeadScript.js',
-//     exports: [Function]
-//   }
-```
-
-<h2 align="center">Read script from file</h2>
+- **Read scripts from file**
+  You can read exact script from file. It will help you with code decomposition.
 
 ```js
 const leadvm = require('leadvm');
@@ -72,12 +49,8 @@ const leadvm = require('leadvm');
 //   }
 ```
 
-<h2 align="center">Read scripts from folder</h2>
-
-<p align="center">
-Folder reading may be useful for api modules loading.<br/>
-By default it loads nested directories scripts too, you can change it by providing third parameter as false
-</p>
+- **Read scripts from folder**
+  Folder reading may be useful for api modules loading. By default it loads nested directories scripts too, you can change it by providing third parameter as false.
 
 ```js
 const leadvm = require('leadvm');
@@ -110,9 +83,8 @@ const leadvm = require('leadvm');
 //   }
 ```
 
-<h2 align="center">Nested modules access</h2>
-
-<p align="center">By default nested modules can't be required, to require them you should do:</p>
+- **Nested modules scripts**
+  By default nested modules can't be required, to require them you must add access field in options:
 
 ```js
 const leadvm = require('leadvm');
@@ -148,9 +120,8 @@ const leadvm = require('leadvm');
 //    }
 ```
 
-<h2 align="center">Replace Required lib interface</h2>
-
-<p align="center">For example it can be use to provide custom fs module, with your strict methods</p>
+- **Library substitution**
+  For example it can be use to provide custom fs module, with your strict methods
 
 ```js
 const leadvm = require('leadvm');
@@ -181,29 +152,42 @@ const leadvm = require('leadvm');
 // Output: stub-content
 ```
 
-<h2 align="center">Types</h2>
+- **Class script types**
+  - **type**:
+    <code>_js_</code> Script execution returns last expression
+    <code>_cjs_</code> Script execution returns all that module.exports includes
+  - **\_\_filename** Stands for the name of the module, by default <code>N404.js</code>
+  - **\_\_dirname** Stands for the name of the module directory, by default <code>process.cwd()</code>
+  - **npmIsolation** Use it if you want to isolate your npm modules in vm context.
+  - **context** Script execution closured context, by default its clear that is why you can't use even <code>setTimeout</code> or <code>setInterval</code>.
+  - **access** Contains _absolute paths_ to nested modules or name of _npm/origin_ libraries as keys, with stub-content or boolean values, _by default_ you can't require nested modules.
 
 ```ts
-class Script {
-  constructor(src: string, options?: VMScriptOptions);
-  __filename: string; // script / file name
-  __dirname: string; // relevant to script directory
-  type: MODULE_TYPE; // js => returns last expression, cjs => return all that module.exports includes
-  access: TOptions<boolean | object>; // Absolute paths to nested modules, or dependencies, require
-  script: Script; // vm.createScript
-  context: Context; // vm.createContext
-  exports: any; // return value of runtime
-}
+import { Context, Script, ScriptOptions, RunningCodeOptions, BaseOptions } from 'node:vm';
 
-interface VMScriptOptions {
-  __dirname?: string; // File execution directory, default is process.cwd
-  __filename?: string; // The name of the script, default is N404.js
-  type?: MODULE_TYPE; // js => returns last expression, cjs => return all that module.exports includes
-  access?: TOptions<boolean | object>; // Absolute paths to nested modules, or dependencies, require protection
-  context?: Context; // Execution context, default is empty, no Intervals etc.
-  npmIsolation?: boolean; // Use VM isolation for nested dependencies
+type MODULE_TYPE = 'js' | 'cjs';
+type TOptions<value> = { [key: string]: value };
+
+interface VMScriptOptions extends BaseOptions {
+  __dirname?: string;
+  __filename?: string;
+  type?: MODULE_TYPE;
+  access?: TOptions<boolean | object>;
+  context?: Context;
+  npmIsolation?: boolean;
   runOptions?: RunningCodeOptions;
   scriptOptions?: ScriptOptions;
+}
+
+class Script {
+  constructor(src: string, options?: VMScriptOptions);
+  __filename: string;
+  __dirname: string;
+  type: MODULE_TYPE;
+  access: TOptions<boolean | object>;
+  script: Script;
+  context: Context;
+  exports: any;
 }
 ```
 
