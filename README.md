@@ -1,4 +1,4 @@
-<h1 align="center"> Script isolation and loader</h1>
+<h1 align="center">Script isolation and loader</h1>
 
 <h2 align="center">Installation</h2>
 
@@ -210,6 +210,7 @@ interface VMScriptOptions {
 <h2 align="center">Copyright & contributors</h2>
 
 <p align="center">
-Copyright © 2023 Leadfisher contributors. workspace-example is MIT licensed.<br/>
-Workspace-example is starter-kit for all leadfisher repositories.
+Copyright © 2023 <a href="https://github.com/LeadFisherSolutions/leadvm/graphs/contributors">Leadfisher contributors</a>.
+Leadwatch is <a href="./LICENSE">MIT licensed license</a>.<br/>
+Leadwatch is one of <a href="https://github.com/LeadFisherSolutions">leadfisher solutions</a>.
 </p>
