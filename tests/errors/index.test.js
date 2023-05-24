@@ -38,7 +38,7 @@ test('[JS] Error.notfound.js', async t => {
 
 test('[JS] Error.syntax.js', async t => {
   try {
-    await readScript(target('error.syntax.js'));
+    await readScript(target('error.syntax'));
     assert.fail(new Error('Should throw an error.'));
   } catch (err) {
     assert.strictEqual(err.constructor.name, 'SyntaxError');
