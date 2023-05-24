@@ -15,21 +15,11 @@ npm i leadvm --save
 const leadvm = require('leadvm');
 const ms = leadvm.createScript(`({ field: 'value' });`, {}, 'Example');
 // const ms = leadvm.createScript(`(a, b) => a + b;`);
-console.log(ms);
-// Output:
-//   Script {
-//     script: Script {},
-//     context: {},
-//     access: {}
-//     type: 'js',
-//     __dirname: '/home/user/app',
-//     __name: 'Example',
-//     exports: { field: 'value' }
-//   }
+console.log(ms); // Output: { field: 'value' }
 ```
 
 - **Read scripts from file**
-  You can read exact script from file. It will help you with code decomposition.
+  You can read exact script from file. It will help you with code decomposition. The extension of the script may be any or may not be at all.
 
 ```js
 const leadvm = require('leadvm');
@@ -38,15 +28,7 @@ const leadvm = require('leadvm');
   console.log(ms);
 })();
 // Output:
-//   Script {
-//     script: Script {},
-//     context: {},
-//     access: {},
-//     type: 'js',
-//     __dirname: '/home/user/app/test/examples',
-//     __name: 'simple.js',
-//     exports: { field: 'value', add: [Function: add], sub: [Function: sub] }
-//   }
+//   { field: 'value', add: [Function: add], sub: [Function: sub] }
 ```
 
 - **Read scripts from folder**
@@ -60,25 +42,9 @@ const leadvm = require('leadvm');
 })();
 // Output:
 //   {
-//      simple: {
-//        script: Script {},
-//        context: {},
-//        access: {},
-//        type: 'js',
-//        __dirname: '/home/user/app/test/examples',
-//        __filename: 'simple.js',
-//        exports: { field: 'value', add: [Function: add], sub: [Function: sub] }
-//      },
+//      simple: { field: 'value', add: [Function: add], sub: [Function: sub] },
 //      deep: {
-//        arrow: {
-//          script: Script {},
-//          context: {},
-//          access: {},
-//          type: 'cjs',
-//          __dirname: '/home/user/app/test/examples',
-//          __filename: 'arrow.js',
-//          exports: { field: 'value', add: [Function: add], sub: [Function: sub] }
-//        }
+//        arrow: [Function: anonymous]
 //      }
 //   }
 ```
@@ -91,14 +57,14 @@ const leadvm = require('leadvm');
 (async () => {
   const sandbox = { console };
   sandbox.global = sandbox;
-  const ms = await leadvm.createScript(`module.exports = require('./examples/module.cjs');`, {
+  const ms = await leadvm.execute(`module.exports = require('./examples/module.cjs');`, {
     type: 'cjs',
-    __dirname,
-    context: leadvm.createContext(Object.freeze(sandbox)),
+    dir: __dirname,
+    context: leadvm.execute(Object.freeze(sandbox)),
     access: {
       // You can also use path to dir
       // [path.join(__dirname, 'examples']: true
-      // NOTICE: Use it only with boolean value
+      // NOTICE: Use it only with boolean value in this case
       [path.join(__dirname, 'examples', 'module.cjs')]: true,
       [path.join(__dirname, 'examples', 'module.nested.js')]: true,
     },
@@ -106,18 +72,7 @@ const leadvm = require('leadvm');
   console.log(ms);
 })();
 // Output:
-//    Script {
-//      script: Script {},
-//      context: { console },
-//      access: {
-//        '/home/user/app/test/examples/module.cjs': true,
-//        '/home/user/app/test/examples/module.nested.js': true
-//      },
-//      type: 'cjs',
-//      __dirname: '/home/user/app/tests',
-//      __filename: 'module.cjs',
-//      exports: { name: 'module', value: 1, nested: { name: 'module.nested', value: 2 } }
-//    }
+//    { name: 'module', value: 1, nested: { name: 'module.nested', value: 2 } }
 ```
 
 - **Library substitution**
@@ -136,7 +91,7 @@ const leadvm = require('leadvm');
       }
     };
   `;
-  const ms = leadvm.createScript(src, {
+  const ms = leadvm.execute(src, {
     access: {
       fs: {
         readFile(filename, callback) {
@@ -146,20 +101,19 @@ const leadvm = require('leadvm');
     },
     type: 'cjs',
   });
-  const res = await ms.exports.useStub();
+  const res = await ms.useStub();
   console.log(res);
-})();
-// Output: stub-content
+})(); // Output: stub-content
 ```
 
 - **Class script types**
   - **type**:
     <code>_js_</code> Script execution returns last expression
     <code>_cjs_</code> Script execution returns all that module.exports includes
-  - **\_\_filename** Stands for the name of the module, by default <code>N404.js</code>
-  - **\_\_dirname** Stands for the name of the module directory, by default <code>process.cwd()</code>
+  - **filename** Stands for the name of the module, by default it's empty string
+  - **dir** Stands for the name of the module directory, by default <code>process.cwd()</code>
   - **npmIsolation** Use it if you want to isolate your npm modules in vm context.
-  - **context** Script execution closured context, by default its clear that is why you can't use even <code>setTimeout</code> or <code>setInterval</code>.
+  - **ctx** Script execution closured context, by default it's clear that is why you can't use even <code>setTimeout</code> or <code>setInterval</code>.
   - **access** Contains _absolute paths_ to nested modules or name of _npm/origin_ libraries as keys, with stub-content or boolean values, _by default_ you can't require nested modules.
 
 ```ts
@@ -169,25 +123,14 @@ type MODULE_TYPE = 'js' | 'cjs';
 type TOptions<value> = { [key: string]: value };
 
 interface VMScriptOptions extends BaseOptions {
-  __dirname?: string;
-  __filename?: string;
+  dir?: string;
+  filename?: string;
   type?: MODULE_TYPE;
   access?: TOptions<boolean | object>;
-  context?: Context;
+  ctx?: Context;
   npmIsolation?: boolean;
-  runOptions?: RunningCodeOptions;
-  scriptOptions?: ScriptOptions;
-}
-
-class Script {
-  constructor(src: string, options?: VMScriptOptions);
-  __filename: string;
-  __dirname: string;
-  type: MODULE_TYPE;
-  access: TOptions<boolean | object>;
-  script: Script;
-  context: Context;
-  exports: any;
+  run?: RunningCodeOptions;
+  script?: ScriptOptions;
 }
 ```
 
