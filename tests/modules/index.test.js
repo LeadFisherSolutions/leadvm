@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const path = require('node:path');
-const { execute, createContext, readScript } = require('../..');
+const { exec, createCtx, readScript } = require('../..');
 
 const target = name => path.join(__dirname, 'examples', name);
 
@@ -11,13 +11,13 @@ test('Access for node internal module', async t => {
   const sandbox = {};
   sandbox.global = sandbox;
   const src = `module.exports = { fs: require('fs') };`;
-  const context = createContext(Object.freeze(sandbox));
-  const ms = execute(src, { context, access: { fs: true }, type: 'cjs' });
+  const context = createCtx(Object.freeze(sandbox));
+  const ms = exec(src, { context, access: { fs: true }, type: 'cjs' });
 });
 
 test('[JS/CJS] Access non-existent npm module', async test => {
   try {
-    const ms = execute(`const notExist = require('leadfisher');`, {
+    const ms = exec(`const notExist = require('leadfisher');`, {
       access: { leadfisher: true },
       type: 'cjs',
     });
@@ -27,7 +27,7 @@ test('[JS/CJS] Access non-existent npm module', async test => {
   }
 
   try {
-    const ms = execute(`const notExist = require('leadfisher');`, { access: { leadfisher: true } });
+    const ms = exec(`const notExist = require('leadfisher');`, { access: { leadfisher: true } });
     assert.strictEqual(ms, undefined);
   } catch (err) {
     assert.strictEqual(err.message, `Cannot find module 'leadfisher'`);
@@ -45,7 +45,7 @@ test('[CJS] Access for stub function', async t => {
       }
     };
   `;
-  const ms = execute(src, {
+  const ms = exec(src, {
     access: {
       fs: {
         readFile(filename, callback) {
@@ -63,8 +63,8 @@ test('[CJS] Access nestsed commonjs', async test => {
   const sandbox = { console };
   sandbox.global = sandbox;
   const src = `module.exports = require('./module.cjs');`;
-  const ms = execute(src, {
-    ctx: createContext(Object.freeze(sandbox)),
+  const ms = exec(src, {
+    ctx: createCtx(Object.freeze(sandbox)),
     dir: path.join(__dirname, 'examples'),
     access: {
       [path.join(__dirname, 'examples', 'module.cjs')]: true,
@@ -78,7 +78,7 @@ test('[CJS] Access nestsed commonjs', async test => {
 
 test('[CJS] Access folder [path prefix]', async test => {
   const src = `module.exports = require('./module.cjs');`;
-  const ms = execute(src, {
+  const ms = exec(src, {
     dir: path.join(__dirname, 'examples'),
     access: { [path.join(__dirname)]: true },
     type: 'cjs',
@@ -100,7 +100,7 @@ test('[CJS] Access with readScript', async test => {
 test('[CJS] Access nested not permitted', async test => {
   try {
     const src = `module.exports = require('./module.cjs');`;
-    const ms = execute(src, {
+    const ms = exec(src, {
       dir: path.join(__dirname, 'examples'),
       access: { [path.join(__dirname, 'examples', './module.cjs')]: true },
       type: 'cjs',
@@ -113,6 +113,6 @@ test('[CJS] Access nested not permitted', async test => {
 
 test('[CJS] Access nestsed npm modules', async test => {
   const src = `module.exports = require('node:test');`;
-  const ms = execute(src, { access: { 'node:test': true }, type: 'cjs' });
+  const ms = exec(src, { access: { 'node:test': true }, type: 'cjs' });
   assert.strictEqual(typeof ms, 'function');
 });

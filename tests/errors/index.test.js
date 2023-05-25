@@ -3,13 +3,13 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const path = require('node:path');
-const { execute, readScript } = require('../..');
+const { exec, read } = require('../..');
 
 const target = name => path.join(__dirname, 'examples', name);
 
 test('[CJS] Eval error ', async test => {
   try {
-    execute(`module.exports = eval('100 * 2');`, { type: 'cjs' });
+    exec(`module.exports = eval('100 * 2');`, { type: 'cjs' });
     assert.fail(new Error('Should throw an error.'));
   } catch (error) {
     assert.strictEqual(error.constructor.name, 'EvalError');
@@ -18,7 +18,7 @@ test('[CJS] Eval error ', async test => {
 
 test('[JS] Eval error', async test => {
   try {
-    execute(`eval('100 * 2')`);
+    exec(`eval('100 * 2')`);
     assert.fail(new Error('Should throw an error.'));
   } catch (error) {
     assert.strictEqual(error.constructor.name, 'EvalError');
@@ -28,7 +28,7 @@ test('[JS] Eval error', async test => {
 test('[JS] Error.notfound.js', async t => {
   let ms;
   try {
-    ms = await readScript(target('error.notfound.js'));
+    ms = await read(target('error.notfound.js'));
     assert.fail(new Error('Should throw an error.'));
   } catch (err) {
     assert.strictEqual(err.code, 'ENOENT');
@@ -38,7 +38,7 @@ test('[JS] Error.notfound.js', async t => {
 
 test('[JS] Error.syntax.js', async t => {
   try {
-    await readScript(target('error.syntax'));
+    await read(target('error.syntax'));
     assert.fail(new Error('Should throw an error.'));
   } catch (err) {
     assert.strictEqual(err.constructor.name, 'SyntaxError');
@@ -47,7 +47,7 @@ test('[JS] Error.syntax.js', async t => {
 
 test('[JS] Error.reference.js', async t => {
   try {
-    const script = await readScript(target('error.reference.js'));
+    const script = await read(target('error.reference.js'));
     await script();
 
     assert.fail(new Error('Should throw an error.'));
@@ -58,7 +58,7 @@ test('[JS] Error.reference.js', async t => {
 
 test('[JS] Call undefined as a function', async t => {
   try {
-    const script = await readScript(target('error.undef.js'));
+    const script = await read(target('error.undef.js'));
     await script();
     assert.fail(new Error('Should throw an error.'));
   } catch (err) {
@@ -68,7 +68,7 @@ test('[JS] Call undefined as a function', async t => {
 
 test('[JS/CJS] Error.reference.js Error.reference.cjs (line number)', async t => {
   try {
-    const script = await readScript(target('error.reference.js'));
+    const script = await read(target('error.reference.js'));
     await script();
 
     assert.fail(new Error('Should throw an error.'));
@@ -79,7 +79,7 @@ test('[JS/CJS] Error.reference.js Error.reference.cjs (line number)', async t =>
   }
 
   try {
-    const script = await readScript(target('error.reference.cjs'));
+    const script = await read(target('error.reference.cjs'));
     await script();
     assert.fail(new Error('Should throw an error.'));
   } catch (err) {
@@ -91,7 +91,7 @@ test('[JS/CJS] Error.reference.js Error.reference.cjs (line number)', async t =>
 
 test('Error.empty.js', async t => {
   try {
-    await readScript(target('error.empty.js'));
+    await read(target('error.empty.js'));
     assert.fail(new Error('Should throw an error.'));
   } catch (err) {
     assert.strictEqual(err.constructor.name, 'SyntaxError');

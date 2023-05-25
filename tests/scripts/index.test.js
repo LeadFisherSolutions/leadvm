@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const path = require('node:path');
-const { readScript, createContext } = require('../..');
+const { readScript, createCtx } = require('../..');
 
 const target = name => path.join(__dirname, 'examples', name);
 
@@ -26,7 +26,7 @@ test('[JS] Simple (from non extension file)', async t => {
 });
 
 test('[JS] Complex.js', async t => {
-  const ctx = createContext({ setTimeout });
+  const ctx = createCtx({ setTimeout });
   const options = { filename: 'CUSTOM FILE NAME', ctx };
   const ms = await readScript(target('complex.js'), options);
 
