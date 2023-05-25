@@ -16,7 +16,8 @@ export interface VMScriptOptions extends BaseOptions {
   npmIsolation?: boolean;
 }
 
-export function createContext(context?: Context | Object, preventEscape?: boolean): Context;
-export function execute(src: string, options?: VMScriptOptions): Script;
+export function createCtx(ctx?: Context | Object, preventEscape?: boolean): Context;
+export function exec(src: string, options?: VMScriptOptions): Script;
+export function read(path: string, options?: VMScriptOptions): Promise<Script>;
 export function readScript(path: string, options?: VMScriptOptions): Promise<Script>;
 export function readDir(path: string, options?: VMScriptOptions, deep?: boolean): Promise<Script[]>;

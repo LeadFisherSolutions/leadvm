@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0][] - 2023-05-25
+
+- Universal script reader
+- Change in names - execution switched to exec, createContext switched to createCtx
+- Types update
+- Documentation update
+
 ## [2.0.0][] - 2023-05-25
 
 - Npm update
@@ -24,6 +31,7 @@
 
 - Stable version
 
-[2.0.0]: https://github.com/LeadFisherSolutions/workspace-example/compare/v1.1.0...v2.0.0
-[1.1.0]: https://github.com/LeadFisherSolutions/workspace-example/compare/release...v1.1.0
-[1.0.0]: https://github.com/LeadFisherSolutions/workspace-example/releases/tag/release
+[2.1.0]: https://github.com/LeadFisherSolutions/leadvm/compare/v2.0.0...v2.1.0
+[2.0.0]: https://github.com/LeadFisherSolutions/leadvm/compare/v1.1.0...v2.0.0
+[1.1.0]: https://github.com/LeadFisherSolutions/leadvm/compare/release...v1.1.0
+[1.0.0]: https://github.com/LeadFisherSolutions/leadvm/releases/tag/release

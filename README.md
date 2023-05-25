@@ -49,6 +49,26 @@ const leadvm = require('leadvm');
 //   }
 ```
 
+- **Universal script reader**
+  You can load folder or script file with this function, but it's slower compare to previous two.
+
+```js
+const leadvm = require('leadvm');
+(async () => {
+  const dir = await leadvm.read('./test/examples/readDir');
+  const arrow = await leadvm.read('./test/examples/arrow.js');
+  console.log({ ...dir, arrow });
+})();
+// Output:
+//   {
+//      simple: { field: 'value', add: [Function: add], sub: [Function: sub] },
+//      deep: {
+//        arrow: [Function: anonymous]
+//      },
+//      arrow: [Function: anonymous]
+//   }
+```
+
 - **Nested modules scripts**
   By default nested modules can't be required, to require them you must add access field in options:
 
@@ -57,10 +77,10 @@ const leadvm = require('leadvm');
 (async () => {
   const sandbox = { console };
   sandbox.global = sandbox;
-  const ms = await leadvm.execute(`module.exports = require('./examples/module.cjs');`, {
+  const ms = await leadvm.exec(`module.exports = require('./examples/module.cjs');`, {
     type: 'cjs',
     dir: __dirname,
-    context: leadvm.execute(Object.freeze(sandbox)),
+    ctx: leadvm.createCtx(Object.freeze(sandbox)),
     access: {
       // You can also use path to dir
       // [path.join(__dirname, 'examples']: true
@@ -91,7 +111,7 @@ const leadvm = require('leadvm');
       }
     };
   `;
-  const ms = leadvm.execute(src, {
+  const ms = leadvm.exec(src, {
     access: {
       fs: {
         readFile(filename, callback) {
